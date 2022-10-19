@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="https://passport.ustc.edu.cn/images/favicon.ico">
+    <link rel="stylesheet" href="/static/css/login.css">
+    <title>中国科学技术大学统一身份认证系统</title>
+</head>
+<body>
+    <div class="content">
+        <div class="box center">
+        <div class="card">
+            <div id="header">
+                <h1 class="header-logo">
+                    <img id="header-img" src="https://passport.ustc.edu.cn/images/ucas/logo.svg">
+                </h1>
+                <h1 class="header-des">
+                    <img id="des-img" src="https://passport.ustc.edu.cn/images/ucas/des.svg"> 
+                </h1>
+            </div>
+            <form class="loginForm form-style" style="height: 210px;" method="post" action="/login" accept-charset="UTF-8">
+                <!-- 账户 -->
+                <div class="group" title="">
+                    <input id="username" class="input-box" name="username" type="text" size="16" placeholder="请输入用户名" value="" onfocus="this.placeholder='用户名为本人GID/工资号/学号(字母需大写)'" onblur="this.placeholder='请输入用户名'" required="">
+                    <span class="bar"></span>
+                </div>
+            
+                <!-- 密码 -->
+                <div class="group" id="pd" title="">
+                    <input type="password" id="password" class="input-box" name="password" size="20" value="" placeholder="初次登录或忘记密码时，请点击“找回密码”" onfocus="this.placeholder=''" onblur="this.placeholder='初次登录或忘记密码时，请点击“找回密码”'" mark="password" required="">
+                    <span class="bar"></span>
+                </div>
+            
+                <div class="bottom-box">
+                    <select id="selector" title="locale"  class="bottom-box-selector" style="height: 20px;line-height: 20px;padding: 0px 0;font-size: 10px">
+                        <option id="zh" value="zh" selected="selected">中文</option>
+                        <option id="en" value="en">English</option>
+                    </select>
+                    
+                    <a id="findPassword" href="#" onclick="function goFindPassword() {
+
+                    }
+                    goFindPassword();" class="bottom-box-button-area">找回/修改密码</a>
+                    <button id="login" type="submit" onclick="return check();" name="button" class="btn ripple bottom-box-button-area-1">登录</button>
+                </div>
+                <div class="sign" style="padding-top: 34px;display:none">
+                    <h6 class="more-sign" id="more-sign">更多登录方式</h6>
+                    <img style="width:40px;cursor: pointer;" src="https://passport.ustc.edu.cn/images/feishu.image" onclick="function goFeishuLogin() {
+
+                    }
+                    goFeishuLogin();">
+                </div>
+                
+                <div style="color: red; font-size: 12px; display: none; cursor: pointer; padding-top: 25px;" class="notice" id="notice" onclick="function showNotice() {
+
+                }
+                showNotice()">关于部分弱密码用户暂停登录的通知</div>
+                <div style="color:red;font-size:12px;display:none">当前为测试环境，请勿修改密码</div>
+            </form>
+        </div>
+    </div>
+    </div>
+</body>
+</html>

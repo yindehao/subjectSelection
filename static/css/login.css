@@ -1,0 +1,175 @@
+.content{
+    position: absolute;
+    /* left: 50%, 整个盒子移动到浏览器中间偏右的位置 */
+    left: 50%;
+    /* margin-left: -150px; */
+    top: 50%;
+    /* margin-top: -150px; */
+    transform: translate(-50%,-50%);
+}
+.box {
+    width: 420px;
+    display: table;
+    position: relative;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    overflow: hidden;
+    color: #000;
+    background-color: #fff;
+    border-radius: 2px;
+    -webkit-box-shadow: 0 3px 1px -2px rgb(0 0 0 / 20%), 0 2px 2px 0 rgb(0 0 0 / 14%), 0 1px 5px 0 rgb(0 0 0 / 12%);
+    box-shadow: 0 3px 1px -2px rgb(0 0 0 / 20%), 0 2px 2px 0 rgb(0 0 0 / 14%), 0 1px 5px 0 rgb(0 0 0 / 12%);
+}
+.center{
+    margin: 0 auto;
+    text-align: center;
+}
+
+.card {
+    display: table-cell;
+    vertical-align: middle;
+    padding: 12% 8% 8% 8%;
+    width: inherit;
+}
+.header-logo {
+    width: 80%;
+    margin: auto;
+}
+
+.header-des {
+    margin: auto;
+    margin-top: 20px;
+}
+
+#des-img {
+    width: 40%;
+}
+.form-style {
+    margin: 20px auto;
+    width: 90%;
+}
+.group {
+    position: relative;
+    padding-top: 14px;
+    padding-bottom: 4px;
+    height: 34px;
+}
+input {
+    /* height: 31px; */
+    padding: 0;
+    font-size: 14px;
+    display: block;
+    width: 100%;
+    border: none;
+    border-bottom: 1px solid #0350a0;
+}
+
+.input-box {
+    height: 24px;
+}
+.bar {
+    position: relative;
+    display: block;
+    width: 100%;
+}
+
+.bar:before {
+    content: '';
+    height: 2px;
+    width: 0;
+    position: absolute;
+    left: 50%;
+    bottom: -1px;
+    background: #0350a0;
+    transition: 0.2s ease all;
+    -moz-transition: 0.2s ease all;
+    -webkit-transition: 0.2s ease all;
+    -o-transition: 0.2s ease all;
+}
+.bar:after {
+    content: '';
+    height: 2px;
+    width: 0;
+    position: absolute;
+    right: 50%;
+    bottom: -1px;
+    background: #0350a0;
+    transition: 0.2s ease all;
+    -moz-transition: 0.2s ease all;
+    -webkit-transition: 0.2s ease all;
+    -o-transition: 0.2s ease all;
+}
+.bottom-box {
+    height: 54px;
+    width: 100%;
+    position: relative;
+}
+
+.bottom-box-selector {
+    position: absolute;
+    left: 0;
+    bottom: 8px;
+    line-height: 36px;
+}
+a {
+    color: #444444;
+    text-decoration: none;
+}
+
+
+.bottom-box-button-area {
+    position: absolute;
+    right: 42%;
+    bottom: 0;
+    font-size: 12px;
+    line-height: 36px;
+}
+
+.btn {
+    position: relative;
+    display: inline-block;
+    width: 40%;
+    min-width: 88px;
+    height: 36px;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    padding: 0 16px;
+    margin: 0;
+    overflow: hidden;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 36px;
+    text-align: center;
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    white-space: nowrap;
+    vertical-align: middle;
+    -ms-touch-action: manipulation;
+    touch-action: manipulation;
+    cursor: pointer;
+    zoom: 1;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    border: none;
+    outline: 0;
+    -webkit-transition: all .2s cubic-bezier(.4,0,.2,1),-webkit-box-shadow .2s cubic-bezier(.4,0,1,1);
+    transition: all .2s cubic-bezier(.4,0,.2,1),-webkit-box-shadow .2s cubic-bezier(.4,0,1,1);
+    transition: all .2s cubic-bezier(.4,0,.2,1),box-shadow .2s cubic-bezier(.4,0,1,1);
+    transition: all .2s cubic-bezier(.4,0,.2,1),box-shadow .2s cubic-bezier(.4,0,1,1),-webkit-box-shadow .2s cubic-bezier(.4,0,1,1);
+    will-change: box-shadow;
+    -webkit-user-drag: none;
+    background-color: rgb(3,80,160);
+    color: white;
+}
+.ripple {
+    position: relative;
+    overflow: hidden;
+}
+.bottom-box-button-area-1 {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+}
