@@ -1,11 +1,12 @@
 from flask import Flask
 from common import config
 from common.ext import db
+from controller import studentController
 
 app = Flask(__name__)
 app.config.from_object(config)
 db.init_app(app)
-
+app.register_blueprint(studentController.bp)#蓝图注册
 
 @app.route('/')
 def hello_world():
