@@ -18,6 +18,7 @@ app.register_blueprint(student_bp)
 app.register_blueprint(instructor_bp)
 
 
+# 测试数据库连接
 @app.route('/test_connection')
 def test_connection():
     # 测试数据库连接，查询当前时间
@@ -26,6 +27,7 @@ def test_connection():
     return f'当前时间为 {now}'
 
 
+# 运行后，如果当前用户未登录，重定向到登录界面；如果已经登录，重定向到导师/用户主页界面
 @app.route('/')
 def index():
     # 如果已经登录了学生账号,跳转到学生主页界面
@@ -33,7 +35,7 @@ def index():
         return redirect(url_for("sbp.index"))
     # 如果登录了导师账号,跳转到导师主页界面
     elif 'instructor_id' in session:
-        return url_for("ibp.index")
+        return redirect(url_for("ibp.index"))
     # 登录界面
     else:
         return redirect(url_for('login'))
@@ -55,14 +57,15 @@ def login():
                 if student and check_password_hash(student.password, password):
                     session['student_id'] = student.student_id
                     # todo 设置会话过期时间
-                    return url_for("sbp.index")
+                    return redirect(url_for("sbp.index"))
                 elif student and student.password == password:
                     # 如果用户密码是密文存储，则将密码更改为哈希后的密码
                     student.password = generate_password_hash(password)
                     db.session.commit()
                     session['student_id'] = student_id
-                    return url_for("sbp.index")
+                    return redirect(url_for("sbp.index"))
                 else:
+                    # todo 调用前端接口弹出提示
                     print("学工号或密码错误")
                     return redirect(url_for("login"))
 
@@ -72,14 +75,15 @@ def login():
                 instructor = db.session.query(Instructor).filter_by(instructor_id=instructor_id)[0]
                 if instructor and check_password_hash(instructor.password, password):
                     session['instructor_id'] = instructor_id
-                    return url_for("ibp.index")
+                    return redirect(url_for("ibp.index"))
                 elif instructor and instructor.password == password:
                     # 如果用户密码是密文存储，则将密码更改为哈希后的密码
                     instructor.password = generate_password_hash(password)
                     db.session.commit()
                     session['instructor_id'] = instructor_id
-                    return url_for("ibp.index")
+                    return redirect(url_for("ibp.index"))
                 else:
+                    # todo 调用前端接口弹出提示
                     print("学工号或密码错误")
                     return redirect(url_for("login"))
 
