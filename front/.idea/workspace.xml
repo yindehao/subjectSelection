@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="3a600372-12f9-43c2-b74c-871ffb96af02" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.eslintrc.cjs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/front.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/env.d.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/favicon.ico" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src.zip" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/App.vue" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/assets/base.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/assets/logo.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/assets/main.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/assets/style/reset.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/FocusTopics.vue" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/LayoutHeader.vue" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/MenuBar.vue" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/MyGroup.vue" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/MyInfo.vue" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/MyNotice.vue" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/TopicsMarket.vue" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/icons/IconTooling.vue" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/env.d.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/router/index.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/stores/counter.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/unti/requestApi.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/views/StudentView.vue" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/views/loginView.vue" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/views/testView.vue" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tsconfig.config.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tsconfig.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/vite.config.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../templates/student_pages/base.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../templates/student_pages/group_work.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../templates/student_pages/message.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../templates/student_pages/subject_market.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../templates/student_pages/wish_list.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.idea/subjectSelection.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/subjectSelection.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app.py" beforeDir="false" afterPath="$PROJECT_DIR$/../app.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../common/ext.py" beforeDir="false" afterPath="$PROJECT_DIR$/../common/ext.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../common/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/../common/forms.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../templates/student.html" beforeDir="false" afterPath="$PROJECT_DIR$/../templates/student.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../templates/student_info.html" beforeDir="false" afterPath="$PROJECT_DIR$/../templates/student_pages/student_info.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../views/student_view.py" beforeDir="false" afterPath="$PROJECT_DIR$/../views/student_view.py" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectId" id="2GM1TxnXjhlmF7btBkMO0qkqvH4" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_ADD_EXTERNAL_FILES": "true",
+    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "last_opened_file_path": "C:/Users/33097/Documents/WeChat Files/wxid_bgx18f4ja0gt22/FileStorage/File/2022-10/project_py",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "nodejs_interpreter_path": "C:/Program Files/nodejs/node",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "ts.external.directory.path": "C:\\Users\\33097\\PycharmProjects\\subjectSelection\\front\\node_modules\\typescript\\lib",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\33097\PycharmProjects\subjectSelection\front" />
+    </key>
+  </component>
+  <component name="RunManager" selected="JavaScript Debug.Debug Application">
+    <configuration name="Debug Application" type="JavascriptDebugType" uri="http://localhost:8080">
+      <method v="2" />
+    </configuration>
+    <configuration name="npm serve" type="js.build_tools.npm">
+      <package-json value="$PROJECT_DIR$/package.json" />
+      <command value="run" />
+      <scripts>
+        <script value="serve" />
+      </scripts>
+      <node-interpreter value="project" />
+      <envs />
+      <method v="2" />
+    </configuration>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="3a600372-12f9-43c2-b74c-871ffb96af02" name="Changes" comment="" />
+      <created>1666183649590</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1666183649590</updated>
+      <workItem from="1666183650752" duration="4307000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
+  </component>
+</project>
