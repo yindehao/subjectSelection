@@ -1,27 +1,23 @@
 # subjectSelection
  工程实践选题系统
 
-## 需求概述
+## 项目文档  
+[点击查看项目文档](https://note.youdao.com/s/Z4NKGtb9)
 
-软件学院每年的工程实践课题数量繁多，既有学院课题，也有企业课题。实践课题方向众多，包括人机交互软件、自然语言处理、底层架构研发等方向。
+前端html文件存放在**templates**目录下
 
-原有的查看选题方式是通过多个word或者pdf文档，以导师为分类进行挑选。学生在浏览课题时需要打开多个文件反复比对，费时费心。
+css文件、图片等资源存放在**static**目录下
 
-现开发工程实践选题系统，学生可以在系统内查看课题，也可以按条件筛选课题，或者搜索课题，方便在众多的课题中挑选适合自己的选题。同时，学生可以选择加入队伍，或者创建队伍等待队员加入。
+## 项目配置
+1. 使用git克隆项目到本地
+2. 在本地主机上运行mysql服务  
+搜索->服务->MySQL80
+![img.png](ReadMeAssests/MySQL80.png)
+3. 使用Mysql Bench/Navicat/Pycharm内置数据库插件，运行项目文件下的**database->SubjectSelectionSys4.sql**，
+该文件会在MySQL服务器上建立数据库实例**subject_selection_db**以及对应的关系数据库表
+![img.png](ReadMeAssests/database.png)
+4. 在项目文件下的**com->config**内，修改为你的数据库用户密码
+5. 运行app.py，点击链接测试数据库是否正常运行
+![img.png](ReadMeAssests/test_database.png)
 
-导师可以在系统内发布选题，管理学生选题申请，以及编辑已经发布的课题内容。
 
-## 软件架构模型
-
-使用flask微框架
-MVC架构
-数据库：Mysql
-
-模型层：flask-sqlaichemy
-
-表现层：网页渲染模板Jinja2，在html中使用Python语法传入数据
-
-控制层：flask
-
-## 包结构设计
-![](%E6%88%AA%E5%9B%BE.png)
