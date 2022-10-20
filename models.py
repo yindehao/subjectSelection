@@ -50,7 +50,8 @@ class Subject(Base):
 
 class Instructor(Base):
     __tablename__ = 'instructor'
-    __table_args__ = {'comment': '指导教师，负责发布选题和确认小组选题情况。\\r\\n属性包括：\\r\\nid，\\r\\n导师姓名，\\r\\n                               -&#'}
+    __table_args__ = {
+        'comment': '指导教师，负责发布选题和确认小组选题情况。\\r\\n属性包括：\\r\\nid，\\r\\n导师姓名，\\r\\n                               -&#'}
 
     instructor_id = Column(String(16), primary_key=True)
     dept_id = Column(ForeignKey('dept.dept_id', ondelete='RESTRICT', onupdate='RESTRICT'), index=True)
@@ -83,8 +84,10 @@ class ReleaseSubject(Base):
     __tablename__ = 'release_subject'
     __table_args__ = {'comment': '一个导师可以发布多个题目。\\r\\n也可以有多个导师联合指导题目'}
 
-    instructor_id = Column(ForeignKey('instructor.instructor_id', ondelete='RESTRICT', onupdate='RESTRICT'), primary_key=True, nullable=False)
-    subject_id = Column(ForeignKey('subject.subject_id', ondelete='RESTRICT', onupdate='RESTRICT'), primary_key=True, nullable=False, index=True)
+    instructor_id = Column(ForeignKey('instructor.instructor_id', ondelete='RESTRICT', onupdate='RESTRICT'),
+                           primary_key=True, nullable=False)
+    subject_id = Column(ForeignKey('subject.subject_id', ondelete='RESTRICT', onupdate='RESTRICT'), primary_key=True,
+                        nullable=False, index=True)
     released = Column(TINYINT(1), comment='可以存为草稿')
     version = Column(BigInteger)
 
@@ -97,7 +100,8 @@ class Student(Base):
     __table_args__ = {'comment': '学生表，属性包括\\r\\nid，\\r\\n姓名，\\r\\n手机号，\\r\\n邮箱，\\r\\n学生类型'}
 
     student_id = Column(String(16), primary_key=True)
-    team_id = Column(ForeignKey('team.team_id', ondelete='RESTRICT', onupdate='RESTRICT'), index=True, comment='初始为空')
+    team_id = Column(ForeignKey('team.team_id', ondelete='RESTRICT', onupdate='RESTRICT'), index=True,
+                     comment='初始为空')
     dept_id = Column(ForeignKey('dept.dept_id', ondelete='RESTRICT', onupdate='RESTRICT'), index=True)
     password = Column(String(300), comment='哈希后的密文')
     phone_number = Column(String(16))

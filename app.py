@@ -2,17 +2,17 @@ from flask import Flask, render_template, session, url_for, redirect, request
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from common import config
-from common.ext import db
+from common.ext import db, cors
 from common.forms import LoginForm
 from models import Student, Instructor
 from views import student_bp
 from views import instructor_bp
-from views import student_index
-from views import instructor_index
+
 
 app = Flask(__name__)
 app.config.from_object(config)
 db.init_app(app)
+cors.init_app(app)
 # 注册路由视图
 app.register_blueprint(student_bp)
 app.register_blueprint(instructor_bp)
@@ -41,6 +41,7 @@ def index():
         return redirect(url_for('login'))
 
 
+# todo 更改路由
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'GET':
