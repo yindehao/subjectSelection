@@ -12,7 +12,7 @@ from flask import Blueprint, render_template, request, g, redirect, url_for, fla
 from werkzeug.security import check_password_hash
 
 from common.ext import db
-from models import Student, Subject, ReleaseSubject
+from models import Student, Subject, ReleaseSubject, Dept
 import pickle
 
 bp = Blueprint("sbp", __name__, url_prefix='/student')
@@ -33,14 +33,17 @@ def login():
     password = form['password']
     session['student_id'] = student_id
     student = db.session.query(Student).filter_by(student_id=student_id).first()
+    dept = db.session.query(Dept).filter_by(dept_id=student.dept_id).first()
     if student and check_password_hash(student.password, password):
         data = row2dict(student)
-        data['code'] = '200'
-        print(data)
+        # 添加院系名称
+        data['dept_name'] = dept.dept_name
+        res = {'data': data, 'code': '200'}
+        print(res)
         # todo 解决类对象无法序列化的问题
-        return jsonify(data)
+        return jsonify(res)
     else:
-        return jsonify({'code': 400})
+        return jsonify({'code': '400'})
 
 
 # 数据库类对象转为字典
@@ -54,9 +57,9 @@ def row2dict(row):
 # 用户信息界面 获取个人信息
 @bp.route('/info', methods=['GET', 'POST'])
 def info():
-    student_id = session['student_id']
-    student = db.session.query(Student).filter_by(student_id=student_id).first()
     if request.method == 'GET':
+        student_id = session['student_id']
+        student = db.session.query(Student).filter_by(student_id=student_id).first()
         data = row2dict(student)
         data['code'] = '200'
         return jsonify(data)
@@ -64,16 +67,27 @@ def info():
     else:
         # update student info
         form = request.json
+        print(form)
+        student = db.session.query(Student).filter_by(student_id=form['username']).first()
         # form为提交的表单内容 student_new 为更改后的学生信息
-        for key in form.keys():
-            # 更改学生信息
-            setattr(student, key, form[key])
-            # 打印日志
-            logging.warning(f'student {student.name}\'s {key} changed to {form[key]} ')
+        # for key in form.keys():
+        #     # 更改学生信息
+        #     setattr(student, key, form[key])
+        #     # 打印日志
+        #     logging.warning(f'student {student.name}\'s {key} changed to {form[key]} ')
+        # 前后端对接字段
+        student.phone_number = form['TELE']
+        student.email = form['Email']
+        student.birthday = form['birthday'][0:10]
+        print(student.birthday)
+        # todo 前后端选择日期差一天
+        student.description = form['description']
         db.session.commit()
         data = row2dict(student)
-        data['code'] = '200'
-        return jsonify(data)
+        dept = db.session.query(Dept).filter_by(dept_id=student.dept_id).first()
+        data['dept_name'] = dept.dept_name
+        res = {'data': data, 'code': '200'}
+        return jsonify(res)
 
 
 # 课题市场界面
