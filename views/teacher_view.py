@@ -137,8 +137,10 @@ def getSubjectList(teacherId):
     except:
         return jsonify(code=400, msg="查找失败！")
 
-#修改课题
-
+#发布课题
+@bp.route("/subject/post" ,methods =['POST'] )
+def postSubject():
+    return 1
 # 数据库类对象转为字典
 def row2dict(row):
     d = {}
