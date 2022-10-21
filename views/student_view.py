@@ -26,6 +26,7 @@ def index():
     return render_template('student.html', **context)
 
 
+# 学生登录表单
 @bp.route('/login', methods=['POST'])
 def login():
     form = request.json
