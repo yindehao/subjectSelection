@@ -2,17 +2,17 @@ from flask import Flask, render_template, session, url_for, redirect, request
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from common import config
-from common.ext import db
+from common.ext import db, cors
 from common.forms import LoginForm
-from models import Student, Instructor
+from models import Student, Instructor, Subject, ReleaseSubject
 from views import student_bp
 from views import instructor_bp
-from views import student_index
-from views import instructor_index
+
 
 app = Flask(__name__)
 app.config.from_object(config)
 db.init_app(app)
+cors.init_app(app)
 # 注册路由视图
 app.register_blueprint(student_bp)
 app.register_blueprint(instructor_bp)
@@ -41,57 +41,65 @@ def index():
         return redirect(url_for('login'))
 
 
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.method == 'GET':
-        return render_template('login.html')
-    else:
-        form = LoginForm(request.form)
-        if form.validate():
-            user_id = form.username.data
-            password = form.password.data
-            # 学生登录
-            if user_id.startswith('SA'):
-                student_id = user_id
-                student = db.session.query(Student).filter_by(student_id=student_id)[0]
-                if student and check_password_hash(student.password, password):
-                    session['student_id'] = student.student_id
-                    # todo 设置会话过期时间
-                    return redirect(url_for("sbp.index"))
-                elif student and student.password == password:
-                    # 如果用户密码是密文存储，则将密码更改为哈希后的密码
-                    student.password = generate_password_hash(password)
-                    db.session.commit()
-                    session['student_id'] = student_id
-                    return redirect(url_for("sbp.index"))
-                else:
-                    # todo 调用前端接口弹出提示
-                    print("学工号或密码错误")
-                    return redirect(url_for("login"))
+# 筛选条件课题
+# url格式: /subjects/?params1=value1&params2=value2
+@app.route('/subjects', methods=['GET'])
+def get_subjects_by_args():
+    # 获得筛选条件
+    # 导师姓名支持多选
+    instructor_names = request.args.getlist('instructor_name')
+    # 开发语言支持多选
+    language = request.args.get('language')
+    # 题目来源
+    origins = request.args.getlist('origin')
+    # 默认人数为1-4人
+    min_person = int(request.args.get('min_person', 1))
+    max_person = int(request.args.get('max_person', 4))
+    # 分页 第几页page_index 页面大小page_size
+    page_index = int(request.args.get('page_index', 1))
+    page_size = int(request.args.get('page_size', 20))
+    filter_list = []
 
-            # 导师登录
-            elif user_id.startswith('TA'):
-                instructor_id = user_id
-                instructor = db.session.query(Instructor).filter_by(instructor_id=instructor_id)[0]
-                if instructor and check_password_hash(instructor.password, password):
-                    session['instructor_id'] = instructor_id
-                    return redirect(url_for("ibp.index"))
-                elif instructor and instructor.password == password:
-                    # 如果用户密码是密文存储，则将密码更改为哈希后的密码
-                    instructor.password = generate_password_hash(password)
-                    db.session.commit()
-                    session['instructor_id'] = instructor_id
-                    return redirect(url_for("ibp.index"))
-                else:
-                    # todo 调用前端接口弹出提示
-                    print("学工号或密码错误")
-                    return redirect(url_for("login"))
+    if instructor_names:
+        filter_list.append(Instructor.instructor_name.in_(instructor_names))
+    if language:
+        filter_list.append(Subject.language.like(f'%{language}%'))
+    if origins:
+        filter_list.append(Subject.origin.in_(origins))
 
-            # 都不是
-            else:
-                return "未知用户错误"
-        else:
-            return "学工号或密码格式错误"
+    # 人数限制
+    filter_list.append(Subject.max_person <= max_person)
+    filter_list.append(Subject.min_person >= min_person)
+
+    filter_query = db.session.query(Subject.subject_id, Subject.subject_name, Subject.language,
+                                    Instructor.instructor_name, Subject.origin, Subject.min_person,
+                                    Subject.max_person, Subject.max_group). \
+        outerjoin(ReleaseSubject, ReleaseSubject.subject_id == Subject.subject_id). \
+        outerjoin(Instructor, ReleaseSubject.instructor_id == Instructor.instructor_id). \
+        filter(*filter_list).limit(page_size).offset((page_index - 1) * page_size)
+    print(filter_query)
+    subjects = filter_query.all()
+    print(subjects)
+    data = dict()
+    data_keys = ['subject_id', 'subject_name', 'language', 'instructor_name',
+                 'origin', 'min_person', 'max_person', 'max_group']
+    for subject in subjects:
+        data[subject.subject_id] = dict()
+        for key_index in range(len(data_keys) - 1):
+            data[subject.subject_id][data_keys[key_index]] = subject[key_index]
+        # data[subject.subject_id] = {
+        #     'subject_id': subject[0],
+        #     'subject_name': subject[1],
+        #     'language': subject[2],
+        #     'instructor_name': subject[3],
+        #     'origin':subject
+        # }
+
+    response = {
+        'data': data,
+        'code': '200'
+    }
+    return response
 
 
 if __name__ == '__main__':
