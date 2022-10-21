@@ -3,7 +3,6 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 from common import config
 from common.ext import db, cors
-from common.forms import LoginForm
 from models import Student, Instructor, Subject, ReleaseSubject
 from views import student_bp
 from views import instructor_bp
