@@ -3,6 +3,12 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 from common import config
 from common.ext import db
+from common.forms import LoginForm
+from models import Student, Instructor
+from views import student_bp
+from views import instructor_bp
+from views import student_index
+from views import instructor_index
 from controller import studentController
 from views import teacher_view
 
