@@ -15,6 +15,8 @@ from common.ext import db
 from models import Student, Subject, ReleaseSubject, Dept
 import pickle
 
+from views import row2dict
+
 bp = Blueprint("sbp", __name__, url_prefix='/student')
 
 
@@ -45,14 +47,6 @@ def login():
         return jsonify(res)
     else:
         return jsonify({'code': '400'})
-
-
-# 数据库类对象转为字典
-def row2dict(row):
-    d = {}
-    for column in row.__table__.columns:
-        d[column.name] = str(getattr(row, column.name))
-    return d
 
 
 # 用户信息界面 获取个人信息

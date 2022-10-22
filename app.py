@@ -6,7 +6,7 @@ from common.ext import db, cors
 from models import Student, Instructor, Subject, ReleaseSubject
 from views import student_bp
 from views import instructor_bp
-
+from views import subject_bp
 
 app = Flask(__name__)
 app.config.from_object(config)
@@ -15,6 +15,7 @@ cors.init_app(app)
 # 注册路由视图
 app.register_blueprint(student_bp)
 app.register_blueprint(instructor_bp)
+app.register_blueprint(subject_bp)
 
 
 # 测试数据库连接
@@ -38,67 +39,6 @@ def index():
     # 登录界面
     else:
         return redirect(url_for('login'))
-
-
-# 筛选条件课题
-# url格式: /subjects/?params1=value1&params2=value2
-@app.route('/subjects', methods=['GET'])
-def get_subjects_by_args():
-    # 获得筛选条件
-    # 导师姓名支持多选
-    instructor_names = request.args.getlist('instructor_name')
-    # 开发语言支持多选
-    language = request.args.get('language')
-    # 题目来源
-    origins = request.args.getlist('origin')
-    # 默认人数为1-4人
-    min_person = int(request.args.get('min_person', 1))
-    max_person = int(request.args.get('max_person', 4))
-    # 分页 第几页page_index 页面大小page_size
-    page_index = int(request.args.get('page_index', 1))
-    page_size = int(request.args.get('page_size', 20))
-    filter_list = []
-
-    if instructor_names:
-        filter_list.append(Instructor.instructor_name.in_(instructor_names))
-    if language:
-        filter_list.append(Subject.language.like(f'%{language}%'))
-    if origins:
-        filter_list.append(Subject.origin.in_(origins))
-
-    # 人数限制
-    filter_list.append(Subject.max_person <= max_person)
-    filter_list.append(Subject.min_person >= min_person)
-
-    filter_query = db.session.query(Subject.subject_id, Subject.subject_name, Subject.language,
-                                    Instructor.instructor_name, Subject.origin, Subject.min_person,
-                                    Subject.max_person, Subject.max_group). \
-        outerjoin(ReleaseSubject, ReleaseSubject.subject_id == Subject.subject_id). \
-        outerjoin(Instructor, ReleaseSubject.instructor_id == Instructor.instructor_id). \
-        filter(*filter_list).limit(page_size).offset((page_index - 1) * page_size)
-    print(filter_query)
-    subjects = filter_query.all()
-    print(subjects)
-    data = dict()
-    data_keys = ['subject_id', 'subject_name', 'language', 'instructor_name',
-                 'origin', 'min_person', 'max_person', 'max_group']
-    for subject in subjects:
-        data[subject.subject_id] = dict()
-        for key_index in range(len(data_keys) - 1):
-            data[subject.subject_id][data_keys[key_index]] = subject[key_index]
-        # data[subject.subject_id] = {
-        #     'subject_id': subject[0],
-        #     'subject_name': subject[1],
-        #     'language': subject[2],
-        #     'instructor_name': subject[3],
-        #     'origin':subject
-        # }
-
-    response = {
-        'data': data,
-        'code': '200'
-    }
-    return response
 
 
 if __name__ == '__main__':
