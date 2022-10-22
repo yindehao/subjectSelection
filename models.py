@@ -40,7 +40,7 @@ class Subject(Base):
     platform = Column(String(30))
     min_person = Column(Integer)
     max_person = Column(Integer)
-    innovation = Column(String(10))
+    innovation = Column(String(100))
     max_group = Column(Integer)
     origin = Column(String(10), comment='企业课题、导师课题')
     created_time = Column(DateTime)

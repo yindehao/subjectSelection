@@ -107,3 +107,9 @@ def get_subject_by_id(subject_id):
     except TypeError as err:
         print(TypeError)
         return jsonify(code=400, msg='Type Error')
+
+
+@bp.route('/count', methods=['GET'])
+def get_subject_count():
+    count = db.session.query(func.count(Subject.subject_id)).first()[0]
+    return jsonify(count)
