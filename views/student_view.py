@@ -9,23 +9,28 @@ import json
 import logging
 
 from flask import Blueprint, render_template, request, g, redirect, url_for, flash, session, jsonify
-from werkzeug.security import check_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 
 from common.ext import db
+from common.row2dict import row2dict
+from controller.student_controller import query_student_by_name, query_student_by_id, query_dept_by_id, \
+    query_wish_list_by_team_id
 from models import Student, Subject, ReleaseSubject, Dept
 import pickle
-
-from views import row2dict
 
 bp = Blueprint("sbp", __name__, url_prefix='/student')
 
 
+# 后端测试函数
 @bp.route('/')
 def index():
     student_id = session['student_id']
-    student = db.session.query(Student).filter_by(student_id=student_id).first()
-    context = {'student': student}
-    return render_template('student.html', **context)
+    try:
+        student = db.session.query(Student).filter_by(student_id=student_id).first()
+        context = {'student': row2dict(student)}
+        return render_template('student.html', **context)
+    except TypeError as err:
+        return jsonify(code='400', msg=f'学号 {student_id} 不存在系统中')
 
 
 # 学生登录表单
@@ -34,19 +39,28 @@ def login():
     form = request.json
     student_id = form['username']
     password = form['password']
-    session['student_id'] = student_id
-    student = db.session.query(Student).filter_by(student_id=student_id).first()
-    dept = db.session.query(Dept).filter_by(dept_id=student.dept_id).first()
-    if student and check_password_hash(student.password, password):
-        data = row2dict(student)
-        # 添加院系名称
-        data['dept_name'] = dept.dept_name
-        res = {'data': data, 'code': '200'}
-        print(res)
-        # todo 解决类对象无法序列化的问题
-        return jsonify(res)
-    else:
-        return jsonify({'code': '400'})
+    try:
+        student = query_student_by_id(student_id)
+        dept = query_dept_by_id(Student.dept_id)
+        # 如果密码和加密后的密码匹配，则返回登录信息
+        if student and check_password_hash(student.password, password):
+            data = row2dict(student)
+            data['dept_name'] = dept.dept_name
+            session['student_id'] = student_id
+            return jsonify(code='200', data=data, msg='学号和密码匹配')
+        # 如果是明文导入的密码，更改为哈希后的密码
+        elif student and student.password == password:
+            student.password = generate_password_hash(password)
+            db.session.commit()
+            data = row2dict(student)
+            data['dept_name'] = dept.dept_name
+            session['student_id'] = student_id
+            return jsonify(code='200', data=data, msg='学号和密码匹配')
+        else:
+            return jsonify(code='400', msg='学号或者密码错误！')
+    # 该学号不存在
+    except TypeError as err:
+        return jsonify(code='400', msg=f'学号 {student_id} 不存在系统中')
 
 
 # 用户信息界面 获取个人信息
@@ -56,53 +70,36 @@ def info():
         student_id = session['student_id']
         student = db.session.query(Student).filter_by(student_id=student_id).first()
         data = row2dict(student)
-        data['code'] = '200'
-        return jsonify(data)
+        return jsonify(code='200', data=data, msg='找到学生信息')
     # 更改信息
     else:
-        # update student info
         form = request.json
         print(form)
         student = db.session.query(Student).filter_by(student_id=form['username']).first()
-        # form为提交的表单内容 student_new 为更改后的学生信息
-        # for key in form.keys():
-        #     # 更改学生信息
-        #     setattr(student, key, form[key])
-        #     # 打印日志
-        #     logging.warning(f'student {student.name}\'s {key} changed to {form[key]} ')
-        # 前后端对接字段
         student.phone_number = form['TELE']
         student.email = form['Email']
         student.birthday = form['birthday'][0:10]
-        print(student.birthday)
         # todo 前后端选择日期差一天
         student.description = form['description']
         db.session.commit()
+        dept = query_dept_by_id(student.dept_id)
         data = row2dict(student)
-        dept = db.session.query(Dept).filter_by(dept_id=student.dept_id).first()
         data['dept_name'] = dept.dept_name
-        res = {'data': data, 'code': '200'}
-        return jsonify(res)
-
-
-# 课题市场界面
-@bp.route('/subject_market', methods=['GET', 'POST'])
-def subject_market():
-    # if get
-    # 查询所有已经发布的课题
-    subjects = db.session.query(Subject, ReleaseSubject).join(ReleaseSubject).filter_by(
-        ReleaseSubject.released).limit(20, 0).all()
-    data = dict()
-    for subject in subjects:
-        subject_data = row2dict(subject)
-        data[subject.subject_id] = subject_data
-    data['code'] = '200'
-    return jsonify(data)
+        return jsonify(code='200', data=data, msg='修改信息成功')
 
 
 # 题目愿望单
-@bp.route('/wish_list')
-def wish_list():
+@bp.route('/wish_list/<student_id>')
+def query_wish_list(student_id):
+    try:
+        student = query_student_by_id(student_id)
+        team_id = student.team_id
+        if team_id:
+            wish_list = query_wish_list_by_team_id(team_id)
+        else:
+            return jsonify(code='400',msg='请先创建小组或者加入小组')
+    except TypeError as err:
+        pass
     pass
 
 
@@ -116,3 +113,23 @@ def group_work():
 @bp.route('/message')
 def message():
     pass
+
+
+# 根据id查询学生信息
+@bp.route('/id/<student_id>')
+def query_by_id(student_id):
+    try:
+        student = query_student_by_id(student_id)
+        return jsonify(code=200, msg='找到学生', data=row2dict(student))
+    except TypeError as error:
+        return jsonify(code=400, msg='找不到学生', data={})
+
+
+# 根据姓名查找学生信息
+@bp.route('/name/<student_name>')
+def query_by_name(student_name):
+    try:
+        student = query_student_by_name(student_name)
+        return jsonify(code=200, msg='找到学生', data=row2dict(student))
+    except TypeError as error:
+        return jsonify(code=400, msg='找不到学生', data={})

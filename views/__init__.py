@@ -13,10 +13,4 @@ from .student_view import index as student_index
 from .instructor_view import index as instructor_index
 
 
-# 工具函数
-# 数据库类对象转为字典
-def row2dict(row):
-    d = {}
-    for column in row.__table__.columns:
-        d[column.name] = str(getattr(row, column.name))
-    return d
+

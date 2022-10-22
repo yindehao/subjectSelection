@@ -9,8 +9,8 @@ from flask import Blueprint, request, jsonify
 from sqlalchemy import func
 
 from common.ext import db
+from common.row2dict import row2dict
 from models import Instructor, Subject, ReleaseSubject
-from views import row2dict
 
 bp = Blueprint("svbp", __name__, url_prefix='/subjects')
 
@@ -61,19 +61,7 @@ def get_subjects_by_args():
         data[subject.subject_id] = dict()
         for key_index in range(len(data_keys) - 1):
             data[subject.subject_id][data_keys[key_index]] = subject[key_index]
-        # data[subject.subject_id] = {
-        #     'subject_id': subject[0],
-        #     'subject_name': subject[1],
-        #     'language': subject[2],
-        #     'instructor_name': subject[3],
-        #     'origin':subject
-        # }
-
-    response = {
-        'data': data,
-        'code': '200'
-    }
-    return response
+    return jsonify(data=data, code='200')
 
 
 # 获取所有筛选条件
@@ -119,5 +107,3 @@ def get_subject_by_id(subject_id):
     except TypeError as err:
         print(TypeError)
         return jsonify(code=400, msg='Type Error')
-
-
