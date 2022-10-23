@@ -7,12 +7,12 @@ File:     StudentController
 """
 from common.ext import db
 from common.row2dict import row2dict
-from models import Student, Dept, t_wish_list, Subject, Instructor, ReleaseSubject
+from models import Student, Dept, t_wish_list, Subject, Instructor, ReleaseSubject, Team
 
 
 # 根据学生姓名模糊查找学生
 def query_student_by_name(student_name):
-    student = db.session.query(Student).filter(Student.student_name.like(f'%{student_name}%')).first()
+    student = db.session.query(Student).filter(Student.student_name.like(f'%{student_name}%')).all()
     return student
 
 
@@ -22,6 +22,88 @@ def query_student_by_id(student_id):
     return student
 
 
+# 根据team_id查找同一组的学生
+def query_student_by_team_id(team_id):
+    students = db.session.query(Student).filter_by(team_id=team_id).all()
+    return students
+
+
+'''
+小组的创建、加入、退出、修改、删除
+'''
+
+
+# 创建小组
+def create_team_by_leader(leader_id, team_name):
+    team = Team()
+    team.leader_id = leader_id
+    team.team_name = team_name
+    team.team_id = int(leader_id[2:])
+    team.subject_id = None
+    team.version = 1
+    team.subject_id = None
+    db.session.add(team)
+    return team
+
+
+# 加入小组
+def join_team_by_team_id(student_id, team_id):
+    student = query_student_by_id(student_id)
+    student.team_id = team_id
+    db.session.commit()
+    return student
+
+
+# 修改小组名称
+def update_team_name(team_id, team_name):
+    team = query_team_by_id(team_id)
+    team.team_name = team_name
+    db.session.commit()
+    return team
+
+
+# 退出小组
+def withdraw_team_by_student_id(student_id):
+    student = query_student_by_id(student_id)
+    student.team_id = None
+    db.session.commit()
+    return student
+
+
+# 删除小组
+def delete_team_by_team_id(team_id):
+    team = query_team_by_id(team_id)
+    students = query_student_by_team_id(team_id)
+    for student in students:
+        student.team_id = None
+    db.session.delete(team)
+    db.session.commit()
+    return True
+
+
+# 根据team_id获取team
+def query_team_by_id(team_id):
+    team = db.session.query(Team).filter_by(team_id=team_id).first()
+    return team
+
+
+# 获取小组的全部信息，包括组员姓名学号、组长姓名学号
+def query_team_full_by_id(team_id):
+    team = query_team_by_id(team_id)
+    # 根据team_id查找同一组的学生
+    students = query_student_by_team_id(team_id)
+    team_leader = query_student_by_id(team.leader_id)
+    data = dict()
+    data['team_id'] = row2dict(team)
+    data['teammates'] = dict()
+    data['team_leader'] = team_leader.student_id
+    # 将所有学生信息传到JSON中
+    for stu2 in students:
+        data['teammates'][stu2.student_id] = stu2.student_name
+    return data
+
+
+# 根据dept_id查找院系
 def query_dept_by_id(dept_id):
     dept = db.session.query(Dept).filter_by(dept_id=dept_id).first()
     return dept
@@ -29,11 +111,11 @@ def query_dept_by_id(dept_id):
 
 # 获取愿望单中的课题信息，和加入愿望单的时间
 def query_wish_list_by_team_id(team_id):
-    wish_list = not db.session.query(t_wish_list.join_time, Subject.subject_id, Subject.subject_name, Subject.language,
-                                     Instructor.instructor_name, Subject.origin, Subject.min_person,
-                                     Subject.max_person, Subject.max_group).\
-        join(Subject, Subject.subject_id == t_wish_list.subject_id). \
-        join(ReleaseSubject, ReleaseSubject.subject_id == Subject.subject_id). \
-        join(Instructor, Instructor.instructor_id == ReleaseSubject.subject_id). \
-        filter(t_wish_list.team_id == team_id).all()
+    sql = 'select wish_list.join_time,s.subject_id,s.subject_name, s.language,' \
+          'i.instructor_name, s.origin, s.min_person,s.max_person, s.max_group ' \
+          'from wish_list join subject s on s.subject_id = wish_list.subject_id ' \
+          'join release_subject rs on s.subject_id = rs.subject_id ' \
+          'join instructor i on i.instructor_id = rs.instructor_id ' \
+          'where wish_list.team_id = :team_id'
+    wish_list = db.session.execute(sql, {'team_id': team_id})
     return wish_list
