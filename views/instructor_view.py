@@ -5,13 +5,10 @@ Author:   Yin Dehao
 Version:  V 1.0
 File:     instructor_view.py
 """
-from flask import Blueprint, render_template, request, g, redirect, url_for, flash, session
-# from decorators import login_required
-# from .forms import QuestionForm,AnswerForm
-# from models import QuestionModel,AnswerModel
-from common.ext import db
-from sqlalchemy import or_
+from flask import Blueprint, render_template, session
 
+
+from common.ext import db
 from models import Instructor
 
 bp = Blueprint("ibp", __name__, url_prefix='/instructor')

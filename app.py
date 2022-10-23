@@ -1,12 +1,11 @@
-from flask import Flask, render_template, session, url_for, redirect, request
-from werkzeug.security import check_password_hash, generate_password_hash
+from flask import Flask, session, url_for, redirect
 
 from common import config
 from common.ext import db, cors
-from models import Student, Instructor, Subject, ReleaseSubject
-from views import student_bp
 from views import instructor_bp
+from views import student_bp
 from views import subject_bp
+from views import teacher_bp
 
 app = Flask(__name__)
 app.config.from_object(config)
@@ -16,6 +15,7 @@ cors.init_app(app)
 app.register_blueprint(student_bp)
 app.register_blueprint(instructor_bp)
 app.register_blueprint(subject_bp)
+app.register_blueprint(teacher_bp)
 
 
 # 测试数据库连接
@@ -43,3 +43,5 @@ def index():
 
 if __name__ == '__main__':
     app.run()
+    # 运行云服务器
+    # app.run(host='0.0.0.0',port=5000)

@@ -1,3 +1,4 @@
+# 先执行SQL语句
 alter table subject
 modify column innovation
 varchar(100) default null comment '创新点';
