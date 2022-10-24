@@ -40,7 +40,7 @@ class Subject(Base):
     platform = Column(String(30))
     min_person = Column(Integer)
     max_person = Column(Integer)
-    innovation = Column(String(10))
+    innovation = Column(String(100))
     max_group = Column(Integer)
     origin = Column(String(10), comment='企业课题、导师课题')
     created_time = Column(DateTime)
@@ -124,4 +124,26 @@ t_wish_list = Table(
     Column('team_id', ForeignKey('team.team_id', ondelete='RESTRICT', onupdate='RESTRICT'), index=True),
     Column('join_time', DateTime),
     comment='愿望单'
+)
+# 申请选课表
+t_apply_to_select = Table(
+    'apply_to_select', metadata,
+    Column('team_id', ForeignKey('team.team_id', ondelete='RESTRICT', onupdate='RESTRICT'), index=True),
+    Column('subject_id', ForeignKey('subject.subject_id', ondelete='RESTRICT', onupdate='RESTRICT'), index=True),
+    Column('status', String(16)),
+    Column('version', Integer),
+    Column('created_time', DateTime),
+    Column('last_modified_time', DateTime),
+    comment='申请选题'
+)
+# 申请加入小组表
+t_apply_to_join = Table(
+    'apply_to_join', metadata,
+    Column('team_id', ForeignKey('team.team_id', ondelete='RESTRICT', onupdate='RESTRICT'), index=True),
+    Column('partipant_id', ForeignKey('student.student_id', ondelete='RESTRICT', onupdate='RESTRICT'), index=True),
+    Column('status', String(16)),
+    Column('version', Integer),
+    Column('created_time', DateTime),
+    Column('last_modified_time', DateTime),
+    comment='申请加入小组'
 )

@@ -8,7 +8,9 @@ File:     __init__.py
 # 这里存放路由蓝图文件
 from .student_view import bp as student_bp
 from .instructor_view import bp as instructor_bp
+from .subject_view import bp as subject_bp
 from .student_view import index as student_index
 from .instructor_view import index as instructor_index
+from .teacher_view import bp as teacher_bp
 
 
