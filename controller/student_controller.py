@@ -5,6 +5,7 @@ Author:   Yin Dehao
 Version:  V 1.0
 File:     StudentController
 """
+import logging
 import time
 
 from sqlalchemy import func
@@ -111,6 +112,7 @@ def query_team_full_by_id(team_id):
     if team.subject_id:
         subject = query_subject_by_id(team.subject_id)
         data['team_id']['subject_name'] = subject.subject_name
+
     data['teammates'] = list()
     data['team_leader'] = team_leader.student_id
     # 将所有学生信息传到JSON中

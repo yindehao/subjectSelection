@@ -276,9 +276,16 @@ def search_team_by_id():
     try:
         student_id = request.args.get('student_id')
         student = controller.student_controller.query_student_by_id(student_id)
-        data = controller.student_controller.query_team_full_by_id(student.team_id)
+        # data = controller.student_controller.query_team_full_by_id(student.team_id)
+        team = controller.student_controller.query_team_by_id(student.team_id)
+        team_data = row2dict(team)
+        team_leader = controller.student_controller.query_student_by_id(team.leader_id)
+        team_data['team_leader'] = team_leader.student_name
+        data = list()
+        data.append(team_data)
         return jsonify(code=200, data=data, msg='成功找到小组')
     except Exception as err:
+        logging.warning(err)
         return jsonify(code=400, data=dict(), msg='找不到小组')
 
 
@@ -289,10 +296,13 @@ def search_team_by_name():
     try:
         student_name = request.args.get('student_name')
         students = controller.student_controller.query_student_by_name(student_name)
-        data = dict()
+        data = list()
         for student in students:
             team = controller.student_controller.query_team_by_id(student.team_id)
-            data[team.team_id] = controller.student_controller.query_team_full_by_id(student.team_id)
+            team_leader = controller.student_controller.query_student_by_id(team.leader_id)
+            team_data = row2dict(team)
+            team_data['team_leader'] = team_leader.student_name
+            data.append(team_data)
         if data:
             return jsonify(code=200, data=data, msg='成功找到小组')
         else:
