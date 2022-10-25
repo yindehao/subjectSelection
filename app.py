@@ -2,6 +2,11 @@ from flask import Flask, session, url_for, redirect
 
 from common import config
 from common.ext import db, cors
+<<<<<<< HEAD
+=======
+from common.forms import LoginForm
+from models import Student, Instructor, Subject, ReleaseSubject
+>>>>>>> parent of 658fbcd (Update app.py)
 from views import instructor_bp
 from views import student_bp
 from views import subject_bp
