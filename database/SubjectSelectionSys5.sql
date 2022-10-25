@@ -52,3 +52,5 @@ alter table apply_to_select add constraint FK_Reference_11 foreign key (team_id)
 alter table apply_to_select add constraint FK_Reference_12 foreign key (subject_id)
       references subject (subject_id) on delete restrict on update restrict;
 
+
+
