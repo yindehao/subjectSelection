@@ -15,7 +15,7 @@ drop table if exists apply_to_select;
 create table apply_to_join
 (
    team_id              bigint,
-   partipant_id         varchar(16),
+   participant_id         varchar(16),
    status               varchar(16),
    version              int,
    created_time         datetime,
@@ -43,7 +43,7 @@ alter table apply_to_select comment '申请选题';
 alter table apply_to_join add constraint FK_Reference_9 foreign key (team_id)
       references team (team_id) on delete restrict on update restrict;
 
-alter table apply_to_join add constraint FK_申请加入小组 foreign key (partipant_id)
+alter table apply_to_join add constraint FK_申请加入小组 foreign key (participant_id)
       references student (student_id) on delete restrict on update restrict;
 
 alter table apply_to_select add constraint FK_Reference_11 foreign key (team_id)

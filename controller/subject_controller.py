@@ -30,3 +30,12 @@ def query_instructor_name_by_subject_id(subject_id):
     return instructor_name
 
 
+# 根据课题ID查找导师信息
+def query_instructor_by_subject_id(subject_id):
+    instructor = db.session.query(Instructor). \
+        join(ReleaseSubject, ReleaseSubject.instructor_id == Instructor.instructor_id). \
+        join(Subject, ReleaseSubject.subject_id == Subject.subject_id). \
+        filter(Subject.subject_id == subject_id).first()
+    return instructor
+
+

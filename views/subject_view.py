@@ -10,7 +10,8 @@ from flask import Blueprint, request, jsonify
 from sqlalchemy import func
 
 from common.ext import db
-from common.row2dict import row2dict
+from common.utils2 import row2dict
+from controller.student_controller import get_accept_apply_select_count
 from controller.subject_controller import query_subject_by_id, query_instructor_name_by_subject_id, \
     query_subject_by_name
 from models import Instructor, Subject, ReleaseSubject
@@ -146,4 +147,8 @@ def search_subject():
         return jsonify(code=400, data=dict(), msg='找不到课题')
 
 
-
+#  查看选中某个课题的人数
+@bp.route('/count/<subject_id>')
+def subject_selected_count(subject_id):
+    count = get_accept_apply_select_count(subject_id=subject_id)
+    return jsonify(code=200, data={'count': count}, msg=f'当前已经有{count}个小组选中该课题')
