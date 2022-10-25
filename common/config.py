@@ -29,7 +29,12 @@ MAIL_DEBUG = True
 # 发信人的账号、密码、发送账号配置
 # 需要在163邮箱中，生成客户端授权码
 # smtplib.SMTPAuthenticationError: (535, b'Error: authentication failed')
-
+MAIL_SERVER = "smtp.163.com"
+MAIL_PORT = 465
+MAIL_USERNAME = "yindehao2021@163.com"
+MAIL_PASSWORD = "CDDZHXFNQLZZLZDZ"
+MAIL_DEFAULT_SENDER = "yindehao2021@163.com"
+MAIL_DEFAULT_RECIPIENT = "yindehao@ustc.edu"
 
 SSS_DEV = True
 
