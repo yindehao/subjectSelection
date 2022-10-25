@@ -5,13 +5,15 @@ Author:   Yin Dehao
 Version:  V 1.0
 File:     StudentController
 """
+import logging
+import time
 
 from sqlalchemy import func
 
 from common.ext import db
-from common.utils2 import row2dict, get_local_time
+from common.row2dict import row2dict
 from controller.subject_controller import query_subject_by_id
-from models import Student, Dept, Team, Apply2Select, Apply2Join
+from models import Student, Dept, t_wish_list, Subject, Instructor, ReleaseSubject, Team
 
 
 # 根据学生姓名模糊查找学生
@@ -86,7 +88,6 @@ def delete_team_by_team_id(team_id):
     # 清空wish_list
     delete_wish_list_all(team_id)
     # todo 清空选课申请
-
     for student in students:
         student.team_id = None
     db.session.delete(team)
@@ -149,7 +150,7 @@ def query_wish_list_by_team_id(team_id):
 
 # 添加愿望单
 def add_2_wish_list(team_id, subject_id):
-    now = get_local_time()
+    now = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
     sql = 'insert into wish_list(subject_id, team_id, join_time) ' \
           'values(:subject_id, :team_id, :join_time)'
     db.session.execute(sql, {'subject_id': subject_id, 'team_id': team_id, 'join_time': now})
@@ -173,126 +174,10 @@ def query_wish_by_id(team_id, subject_id):
     wish = db.session.execute(sql, {'subject_id': subject_id, 'team_id': team_id}).first()
     return wish
 
-
 # 删除小队的所有愿望
 def delete_wish_list_all(team_id):
     sql = 'delete from wish_list ' \
           'where team_id = :team_id;'
     db.session.execute(sql, {'team_id': team_id})
     db.session.commit()
-    return True
-
-
-'''
-申请选课和申请加入小组
-
-'''
-
-
-# 根据课程ID获取申请表
-# todo 解决 代码冗余
-def query_apply_select(subject_id):
-    applies = db.session.query(Apply2Select).filter(Apply2Select.subject_id == subject_id).all()
-    return applies
-
-
-def get_accept_apply_select_count(subject_id):
-    count = db.session.query(func.count(Apply2Select.team_id)).\
-        filter(Apply2Select.subject_id == subject_id, Apply2Select.status == '申请通过').first()[0]
-    return count
-
-
-def query_apply_select(subject_id, team_id):
-    applies = db.session.query(Apply2Select).filter(Apply2Select.subject_id == subject_id,
-                                                    Apply2Select.team_id == team_id).first()
-    return applies
-
-
-def query_apply_select_by_team(team_id):
-    applies = db.session.query(Apply2Select).filter(Apply2Select.team_id == team_id).all()
-    return applies
-
-
-# 提交选课申请
-def add_apply_select(subject_id, team_id):
-    apply = Apply2Select()
-    apply.team_id = team_id
-    apply.subject_id = subject_id
-    apply.status = "等待申请通过"
-    apply.version = 1
-    apply.created_time = get_local_time()
-    db.session.add(apply)
-    db.session.commit()
-    return apply
-
-
-# 同意或者拒绝请求
-def update_apply_select(subject_id, team_id, accept):
-    apply = query_apply_select(subject_id=subject_id, team_id=team_id)
-    if accept:
-        apply.status = "申请通过"
-    else:
-        apply.status = "已拒绝"
-    apply.version += 1
-    apply.last_modified_time = get_local_time()
-    db.session.commit()
-    return apply
-
-
-# 同意或者拒绝后，点击邮件删除请求
-def delete_app_select(subject_id, team_id):
-    apply = query_apply_select(subject_id, team_id)
-    db.session.delete(apply)
-    return True
-
-
-# 根据小组ID获取加入表单
-def query_apply_join_by_team(team_id):
-    applies = db.session.query(Apply2Join).filter(Apply2Join.team_id == team_id).all()
-    return applies
-
-
-# 根据学生ID获取加入表单
-def query_apply_join_by_student(student_id):
-    applies = db.session.query(Apply2Join).filter(Apply2Join.participant_id == student_id).all()
-    return applies
-
-
-# 根据小组ID和学生ID获取加入表单
-def query_apply_join(team_id, student_id):
-    apply = db.session.query(Apply2Join).filter(Apply2Join.team_id == team_id,
-                                                Apply2Join.participant_id == student_id).first()
-    return apply
-
-
-# 提交加入申请
-def add_apply_join(team_id, student_id):
-    apply = Apply2Join()
-    apply.team_id = team_id
-    apply.participant_id = student_id
-    apply.status = "等待申请通过"
-    apply.version = 1
-    apply.created_time = get_local_time()
-    db.session.add(apply)
-    db.session.commit()
-    return apply
-
-
-# 同意或者拒绝请求
-def update_apply_join(team_id, student_id, accept):
-    apply = query_apply_join(team_id, student_id)
-    if accept:
-        apply.status = "申请通过"
-    else:
-        apply.status = "已拒绝"
-    apply.version += 1
-    apply.last_modified_time = get_local_time()
-    db.session.commit()
-    return apply
-
-
-# 同意或者拒绝后删除请求
-def delete_app_join(team_id, student_id):
-    apply = query_apply_join(team_id, student_id)
-    db.session.delete(apply)
     return True

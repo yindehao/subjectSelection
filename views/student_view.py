@@ -8,14 +8,11 @@ File:     student_view
 import logging
 from flask import Blueprint, render_template, request, session, jsonify
 from werkzeug.security import check_password_hash, generate_password_hash
-
-from common import config
-from common.ext import db, mail
-from common.utils2 import row2dict, host_ip, host_port
+from common.ext import db
+from common.row2dict import row2dict
 import controller.student_controller
 from controller.subject_controller import query_subject_by_id
 from models import Student
-from flask_mail import Message
 
 bp = Blueprint("sbp", __name__, url_prefix='/student')
 
@@ -60,8 +57,7 @@ def query_by_name(student_name):
             return jsonify(code=200, msg='找到学生', data=data)
         else:
             return jsonify(code=400, msg='找不到学生', data=data)
-    except Exception as error:
-        logging.warning(error)
+    except TypeError as error:
         return jsonify(code=400, msg='找不到学生', data={})
 
 
@@ -209,6 +205,8 @@ def add_wish_list(team_id, subject_id):
         return jsonify(code=400, data=dict(), msg='找不到课题')
 
 
+
+
 '''
 小组信息
 '''
@@ -320,26 +318,17 @@ def join_team_by_id(student_id):
     try:
         team_id = request.json['team_id']
         student = controller.student_controller.query_student_by_id(student_id)
-        team = controller.student_controller.query_team_by_id(team_id)
-        team_leader = controller.student_controller.query_student_by_id(team.leader_id)
-        logging.warning(team_leader)
         if student.team_id is None:
             if controller.student_controller.query_team_count(team_id) < 4:
-                # 申请通过后，才真正接受请求
-                if not controller.student_controller.query_apply_join(team_id=team_id, student_id=student_id):
-                    controller.student_controller.add_apply_join(team_id=team_id, student_id=student_id)
-                msg = write_join_email(leader=team_leader, student=student, team_name=team.team_name)
-
-                mail.send(msg)
-                # controller.student_controller.join_team_by_team_id(student_id, team_id)
+                # todo 发送申请，同意申请
+                controller.student_controller.join_team_by_team_id(student_id, team_id)
                 data = controller.student_controller.query_team_full_by_id(team_id)
-                return jsonify(code=200, data=data, msg='已经发送加入请求，请等待队长通过')
+                return jsonify(code=200, data=data, msg='成功加入小组')
             else:
                 return jsonify(code=401, data=dict(), msg='小组已经满了')
         else:
             return jsonify(code=400, data=dict(), msg='请先退出小组')
     except Exception as e:
-        logging.warning(e)
         return jsonify(code=400, data=dict(), msg='无法加入小组')
 
 
@@ -358,119 +347,6 @@ def quit_team_by_id(student_id):
         return jsonify(code=400, data=dict(), msg='无法退出小组')
 
 
-# 查看加入小组的结果
-@bp.route('/team/<student_id>/join_team', methods=['GET'])
-def join_result(student_id):
-    try:
-        student = controller.student_controller.query_student_by_id(student_id)
-        if student.team_id:
-            applies = controller.student_controller.query_apply_join_by_team(team_id=student.team_id)
-            data = list()
-            for apply in applies:
-                data.append(row2dict(apply))
-            return jsonify(code=200, data=data, msg='成功获得加入小组申请')
-        else:
-            return jsonify(code=400, data=dict(), msg='请先加入小组')
-    except Exception as err:
-        logging.warning(err)
-        return jsonify(code=400, data=dict(), msg='无法获取选中课题信息')
-
-
-# 发送邮件
-def write_join_email(leader, student, team_name):
-    msg = Message()
-    msg.sender = config.MAIL_DEFAULT_SENDER
-    msg.recipients = [leader.email, config.MAIL_DEFAULT_RECIPIENT]
-    msg.subject = f'加入小组请求：{student.student_id}{student.student_name}想要加入您的小组({team_name})'
-    # 与操作
-    key1 = generate_password_hash(leader.password)
-    key2 = generate_password_hash(leader.password)
-    context = {
-        'leader': leader,
-        'student': student,
-        'team_name': team_name,
-        'accept_join': f'http://{host_ip(config.SSS_DEV)}:{host_port()}/student/team/accept?'
-                       f'leader_id={leader.student_id}&participant_id={student.student_id}'
-                       f'&accessor={key1}',
-        "refuse_join": f'http://{host_ip(config.SSS_DEV)}:{host_port()}/student/team/refuse?'
-                       f'leader_id={leader.student_id}&participant_id={student.student_id}'
-                       f'&accessor={key2}',
-    }
-    msg.html = render_template("申请加入小组.html", **context)
-    return msg
-
-
-@bp.route('/team/accept', methods=['POST'])
-def accept_join_mail():
-    try:
-
-        leader_id = request.args.get('leader_id')
-        participant_id = request.args.get('participant_id')
-        key1 = request.args.get('accessor')
-
-        leader = controller.student_controller.query_student_by_id(leader_id)
-        participant = controller.student_controller.query_student_by_id(participant_id)
-        # 如果access不正确
-        if not check_password_hash(key1, leader.password):
-            return '错误的URL格式'
-        # 如果人数不够，加入后不到4人
-        if controller.student_controller.query_team_count(leader.team_id) < 3:
-            controller.student_controller.update_apply_join(leader.team_id, participant_id, True)
-            participant.team_id = leader.team_id
-            db.session.commit()
-            return '您已经同意该成员加入您的小组'
-        # 如果还有其他申请，且队伍中没有剩余位置
-        elif controller.student_controller.query_team_count(leader.team_id) == 3:
-            applies = controller.student_controller.query_apply_join_by_team(leader.team_id)
-            for apply in applies:
-                # 拒绝其他申请
-                if apply.version == 1:
-                    controller.student_controller.update_apply_join(leader.team_id, apply.participant_id, False)
-            db.session.commit()
-            return '加入该成员后，您的小组已经满员，已拒绝其他申请'
-        # 申请已经满了
-        else:
-            return '小组已经满员，无法通过申请'
-    except Exception as err:
-        logging.warning(err)
-        return '地址不正确'
-
-
-@bp.route('/team/refuse', methods=['POST'])
-def refuse_join_mail():
-    try:
-        leader_id = request.args.get('leader_id')
-        participant_id = request.args.get('participant_id')
-        key2 = request.args.get('accessor')
-        leader = controller.student_controller.query_student_by_id(leader_id)
-        # 如果access不正确
-        if not check_password_hash(key2, leader.password):
-            return '错误的URL格式'
-        controller.student_controller.update_apply_join(leader.team_id, participant_id, False)
-        return '您已经拒绝该成员加入您的小组'
-    except Exception as err:
-        logging.warning(err)
-        return '地址不正确'
-
-
-# 查看选题结果
-@bp.route('/team/<student_id>/selected_subject', methods=['GET'])
-def selected_subject(student_id):
-    try:
-        student = controller.student_controller.query_student_by_id(student_id)
-        if student.team_id:
-            applies = controller.student_controller.query_apply_select_by_team(team_id=student.team_id)
-            data = list()
-            for apply in applies:
-                data.append(row2dict(apply))
-            return jsonify(code=200, data=data, msg='成功获得选题申请')
-        else:
-            return jsonify(code=400, data=dict(), msg='请先加入小组')
-    except Exception as err:
-        logging.warning(err)
-        return jsonify(code=400, data=dict(), msg='无法获取选中课题信息')
-
-
 # 申请选题
 @bp.route('/team/<student_id>/select', methods=['POST'])
 def select_subject(student_id):
@@ -480,21 +356,14 @@ def select_subject(student_id):
         if student.team_id:
             team = controller.student_controller.query_team_by_id(team_id=student.team_id)
             if team.leader_id == student.student_id:
-
+                # todo 选择课题
                 subject = controller.subject_controller.query_subject_by_id(subject_id=subject_id)
+                count = 1
                 # 已经选中课题的组数
-                count = controller.student_controller.get_accept_apply_select_count(subject_id=subject_id)
-
                 if subject.max_group > count:
-                    if not controller.student_controller.query_apply_select(subject_id, team_id=student.team_id):
-                        controller.student_controller.add_apply_select(subject_id=subject_id, team_id=student.team_id)
-                    instructor = controller.subject_controller.query_instructor_by_subject_id(subject_id)
-                    teammates = controller.student_controller.query_student_by_team_id(team_id=team.team_id)
-                    msg = write_select_email(subject, instructor, team, teammates)
-                    mail.send(msg)
-                    return jsonify(code=200, data=dict(), msg='已经发送选课请求，请等待教师通过')
-                else:
-                    return jsonify(code=400, data=dict(), msg='选题小组已满')
+                    team.subject_id = subject_id
+                    # todo 申请选题
+                pass
             else:
                 jsonify(code=401, data=dict(), msg='您不是小组组长，无法申请选题')
         else:
@@ -504,79 +373,9 @@ def select_subject(student_id):
         return jsonify(code=400, data=dict(), msg='无法选中课题')
 
 
-def write_select_email(subject, instructor, team, teammates):
-    msg = Message()
-    msg.sender = config.MAIL_DEFAULT_SENDER
-    #  暂时不用导师邮箱
-    msg.recipients = [config.MAIL_DEFAULT_RECIPIENT]
-    msg.subject = f'{instructor.instructor_name}您好：小组{team.team_name} 想要申请做您的课题({subject.subject_name})'
-    # 与操作
-    key1 = generate_password_hash(instructor.password)
-    key2 = generate_password_hash(instructor.password)
-    context = {
-        'team': team,
-        'instructor': instructor,
-        'subject': subject,
-        'teammates': teammates,
-        'accept_join': f'http://{host_ip(config.SSS_DEV)}:{host_port()}/student/select/accept?'
-                       f'subject_id={subject.subject_id}&team_id={team.team_id}'
-                       f'&accessor={key1}',
-        "refuse_join": f'http://{host_ip(config.SSS_DEV)}:{host_port()}/student/select/refuse?'
-                       f'subject_id={subject.subject_id}&team_id={team.team_id}'
-                       f'&accessor={key2}',
-    }
-    msg.html = render_template("申请选题.html", **context)
-    return msg
 
 
-@bp.route('/select/accept', methods=['POST'])
-def accept_select_mail():
-    try:
-        subject_id = request.args.get('subject_id')
-        team_id = request.args.get('team_id')
-        key1 = request.args.get('accessor')
-        team = controller.student_controller.query_team_by_id(team_id)
-        subject = controller.subject_controller.query_subject_by_id(subject_id)
-        instructor = controller.subject_controller.query_instructor_by_subject_id(subject_id)
-        count = controller.student_controller.get_accept_apply_select_count(subject_id=subject_id)
-        # 如果access不正确
-        if not check_password_hash(key1, instructor.password):
-            return '错误的URL格式'
-        # 如果人数不够，加入后不到4人
-        if count < subject.max_group - 1:
-            controller.student_controller.update_apply_select(subject_id, team_id, True)
-            team.subject_id = subject_id
-            db.session.commit()
-            return '您已经同意小组选中您的课题'
-        # 如果还有其他申请，且没有剩余组数，将拒绝其他小组
-        elif count == subject.max_group - 1:
-            applies = controller.student_controller.query_apply_select(subject_id)
-            for apply in applies:
-                if apply.version == 1:
-                    # 拒绝其他申请
-                    controller.student_controller.update_apply_select(subject_id, team_id, False)
-            db.session.commit()
-            return '您已经同意小组选中您的课题，已拒绝其他申请'
-        # 申请已经满了
-        else:
-            return '无法同意该申请，该课题已经全部选中'
-    except Exception as err:
-        logging.warning(err)
-        return '地址不正确'
-
-
-@bp.route('/select/refuse', methods=['POST'])
-def refuse_select_mail():
-    try:
-        subject_id = request.args.get('subject_id')
-        team_id = request.args.get('team_id')
-        key2 = request.args.get('accessor')
-        instructor = controller.subject_controller.query_instructor_by_subject_id(subject_id)
-        # 如果accessor不正确
-        if not check_password_hash(key2, instructor.password):
-            return '错误的URL格式'
-        controller.student_controller.update_apply_select(subject_id, team_id, False)
-        return '您已经拒绝该小组选中您的课题'
-    except Exception as err:
-        logging.warning(err)
-        return '地址不正确'
+# 消息界面
+@bp.route('/message')
+def message():
+    pass
