@@ -23,7 +23,8 @@ JSON_AS_ASCII = False
 
 # 邮箱配置
 # 个人163邮箱
-
+MAIL_SERVER = "smtp.163.com"
+MAIL_PORT = 465
 MAIL_USE_TLS = False
 # 使用加密端口传输
 MAIL_USE_SSL = True
