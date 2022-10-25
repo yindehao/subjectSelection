@@ -10,9 +10,16 @@ from flask import Blueprint, render_template, request, session, jsonify
 from werkzeug.security import check_password_hash, generate_password_hash
 from common.ext import db
 from common.row2dict import row2dict
+<<<<<<< HEAD
 import controller.student_controller
 from controller.subject_controller import query_subject_by_id
 from models import Student
+=======
+from controller.student_controller import query_student_by_name, query_student_by_id, query_dept_by_id, \
+    query_wish_list_by_team_id
+from models import Student, Subject, ReleaseSubject, Dept
+import pickle
+>>>>>>> parent of 408e736 (小组功能实现、愿望单功能实现)
 
 bp = Blueprint("sbp", __name__, url_prefix='/student')
 
@@ -29,6 +36,7 @@ def index():
         return jsonify(code=400, msg=f'学号 {student_id} 不存在系统中')
 
 
+<<<<<<< HEAD
 # 根据id查询学生信息、创建学生信息、删除学生信息
 @bp.route('/id/<student_id>', methods=['GET'])
 def query_by_id(student_id):
@@ -61,6 +69,8 @@ def query_by_name(student_name):
         return jsonify(code=400, msg='找不到学生', data={})
 
 
+=======
+>>>>>>> parent of 408e736 (小组功能实现、愿望单功能实现)
 # 学生登录表单
 @bp.route('/login', methods=['POST'])
 def login():
@@ -92,9 +102,10 @@ def login():
         return jsonify(code=400, msg=f'学号 {student_id} 不存在系统中')
 
 
-# 用户信息界面 获取个人信息和修改个人信息
+# 用户信息界面 获取个人信息
 @bp.route('/info', methods=['GET', 'POST'])
 def info():
+<<<<<<< HEAD
     try:
         if request.method == 'GET':
             student_id = session['student_id']
@@ -151,8 +162,36 @@ def wish_list(team_id):
 
 # 查询愿望单
 def query_wish_list(team_id):
+=======
+    if request.method == 'GET':
+        student_id = session['student_id']
+        student = db.session.query(Student).filter_by(student_id=student_id).first()
+        data = row2dict(student)
+        return jsonify(code='200', data=data, msg='找到学生信息')
+    # 更改信息
+    else:
+        form = request.json
+        print(form)
+        student = db.session.query(Student).filter_by(student_id=form['username']).first()
+        student.phone_number = form['TELE']
+        student.email = form['Email']
+        student.birthday = form['birthday'][0:10]
+        # todo 前后端选择日期差一天
+        student.description = form['description']
+        db.session.commit()
+        dept = query_dept_by_id(student.dept_id)
+        data = row2dict(student)
+        data['dept_name'] = dept.dept_name
+        return jsonify(code='200', data=data, msg='修改信息成功')
+
+
+# 题目愿望单
+@bp.route('/wish_list/<student_id>')
+def query_wish_list(student_id):
+>>>>>>> parent of 408e736 (小组功能实现、愿望单功能实现)
     try:
         if team_id:
+<<<<<<< HEAD
             data = dict()
             wishes = controller.student_controller.query_wish_list_by_team_id(team_id)
             print(wishes)
@@ -373,9 +412,43 @@ def select_subject(student_id):
         return jsonify(code=400, data=dict(), msg='无法选中课题')
 
 
+=======
+            wish_list = query_wish_list_by_team_id(team_id)
+        else:
+            return jsonify(code='400',msg='请先创建小组或者加入小组')
+    except TypeError as err:
+        pass
+    pass
+
+
+# 组队界面
+@bp.route('/group_work')
+def group_work():
+    pass
+>>>>>>> parent of 408e736 (小组功能实现、愿望单功能实现)
 
 
 # 消息界面
 @bp.route('/message')
 def message():
     pass
+
+
+# 根据id查询学生信息
+@bp.route('/id/<student_id>')
+def query_by_id(student_id):
+    try:
+        student = query_student_by_id(student_id)
+        return jsonify(code=200, msg='找到学生', data=row2dict(student))
+    except TypeError as error:
+        return jsonify(code=400, msg='找不到学生', data={})
+
+
+# 根据姓名查找学生信息
+@bp.route('/name/<student_name>')
+def query_by_name(student_name):
+    try:
+        student = query_student_by_name(student_name)
+        return jsonify(code=200, msg='找到学生', data=row2dict(student))
+    except TypeError as error:
+        return jsonify(code=400, msg='找不到学生', data={})

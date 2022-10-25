@@ -12,13 +12,17 @@ from sqlalchemy import func
 
 from common.ext import db
 from common.row2dict import row2dict
+<<<<<<< HEAD
 from controller.subject_controller import query_subject_by_id
 from models import Student, Dept, t_wish_list, Subject, Instructor, ReleaseSubject, Team
+=======
+from models import Student, Dept, t_wish_list, Subject, Instructor, ReleaseSubject
+>>>>>>> parent of 408e736 (小组功能实现、愿望单功能实现)
 
 
 # 根据学生姓名模糊查找学生
 def query_student_by_name(student_name):
-    student = db.session.query(Student).filter(Student.student_name.like(f'%{student_name}%')).all()
+    student = db.session.query(Student).filter(Student.student_name.like(f'%{student_name}%')).first()
     return student
 
 
@@ -28,6 +32,7 @@ def query_student_by_id(student_id):
     return student
 
 
+<<<<<<< HEAD
 # 根据team_id查找同一组的学生
 def query_student_by_team_id(team_id):
     students = db.session.query(Student).filter_by(team_id=team_id).all()
@@ -131,6 +136,8 @@ def query_team_count(team_id):
 
 
 # 根据dept_id查找院系
+=======
+>>>>>>> parent of 408e736 (小组功能实现、愿望单功能实现)
 def query_dept_by_id(dept_id):
     dept = db.session.query(Dept).filter_by(dept_id=dept_id).first()
     return dept
@@ -138,6 +145,7 @@ def query_dept_by_id(dept_id):
 
 # 获取愿望单中的课题信息，和加入愿望单的时间
 def query_wish_list_by_team_id(team_id):
+<<<<<<< HEAD
     sql = 'select s.subject_id,s.subject_name, s.language,' \
           'i.instructor_name, s.origin, s.min_person,s.max_person, s.max_group, wish_list.join_time ' \
           'from wish_list join subject s on s.subject_id = wish_list.subject_id ' \
@@ -145,6 +153,15 @@ def query_wish_list_by_team_id(team_id):
           'join instructor i on i.instructor_id = rs.instructor_id ' \
           'where wish_list.team_id = :team_id'
     wish_list = db.session.execute(sql, {'team_id': team_id})
+=======
+    wish_list = not db.session.query(t_wish_list.join_time, Subject.subject_id, Subject.subject_name, Subject.language,
+                                     Instructor.instructor_name, Subject.origin, Subject.min_person,
+                                     Subject.max_person, Subject.max_group).\
+        join(Subject, Subject.subject_id == t_wish_list.subject_id). \
+        join(ReleaseSubject, ReleaseSubject.subject_id == Subject.subject_id). \
+        join(Instructor, Instructor.instructor_id == ReleaseSubject.subject_id). \
+        filter(t_wish_list.team_id == team_id).all()
+>>>>>>> parent of 408e736 (小组功能实现、愿望单功能实现)
     return wish_list
 
 

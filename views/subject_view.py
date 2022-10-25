@@ -5,33 +5,44 @@ Author:   Yin Dehao
 Version:  V 1.0
 File:     subject_view
 """
+<<<<<<< HEAD
 
+=======
+>>>>>>> parent of 408e736 (小组功能实现、愿望单功能实现)
 from flask import Blueprint, request, jsonify
 from sqlalchemy import func
 
 from common.ext import db
 from common.row2dict import row2dict
+<<<<<<< HEAD
 from controller.subject_controller import query_subject_by_id, query_instructor_name_by_subject_id, \
     query_subject_by_name
+=======
+>>>>>>> parent of 408e736 (小组功能实现、愿望单功能实现)
 from models import Instructor, Subject, ReleaseSubject
 
 bp = Blueprint("svbp", __name__, url_prefix='/subjects')
 
 
-# 根据请求的不定参数，生成过滤器列表
-def get_filter_list_by_args(request2):
+# 筛选条件课题
+# url格式: /subjects?params1=value1&params2=value2
+@bp.route('', methods=['GET'])
+def get_subjects_by_args():
     # 获得筛选条件
     # 导师姓名支持多选
-    instructor_names = request2.args.getlist('instructor_name')
+    instructor_names = request.args.getlist('instructor_name')
     # 开发语言支持多选
-    language = request2.args.get('language')
+    language = request.args.get('language')
     # 题目来源
-    origins = request2.args.getlist('origin')
+    origins = request.args.getlist('origin')
     # 默认人数为1-4人
-    min_person = int(request2.args.get('min_person', 1))
-    max_person = int(request2.args.get('max_person', 4))
-
+    min_person = int(request.args.get('min_person', 1))
+    max_person = int(request.args.get('max_person', 4))
+    # 分页 第几页page_index 页面大小page_size
+    page_index = int(request.args.get('page_index', 1))
+    page_size = int(request.args.get('page_size', 20))
     filter_list = []
+
     if instructor_names:
         filter_list.append(Instructor.instructor_name.in_(instructor_names))
     if language:
@@ -42,8 +53,8 @@ def get_filter_list_by_args(request2):
     # 人数限制
     filter_list.append(Subject.max_person <= max_person)
     filter_list.append(Subject.min_person >= min_person)
-    return filter_list
 
+<<<<<<< HEAD
 
 # 筛选条件课题
 # url格式: /subjects?params1=value1&params2=value2
@@ -74,6 +85,25 @@ def get_subjects_by_args():
         return jsonify(data=data, code=200)
     except TypeError as err:
         return jsonify(code=400, msg='找不到给定参数的课题')
+=======
+    filter_query = db.session.query(Subject.subject_id, Subject.subject_name, Subject.language,
+                                    Instructor.instructor_name, Subject.origin, Subject.min_person,
+                                    Subject.max_person, Subject.max_group). \
+        outerjoin(ReleaseSubject, ReleaseSubject.subject_id == Subject.subject_id). \
+        outerjoin(Instructor, ReleaseSubject.instructor_id == Instructor.instructor_id). \
+        filter(*filter_list).limit(page_size).offset((page_index - 1) * page_size)
+    print(filter_query)
+    subjects = filter_query.all()
+    print(subjects)
+    data = dict()
+    data_keys = ['subject_id', 'subject_name', 'language', 'instructor_name',
+                 'origin', 'min_person', 'max_person', 'max_group']
+    for subject in subjects:
+        data[subject.subject_id] = dict()
+        for key_index in range(len(data_keys) - 1):
+            data[subject.subject_id][data_keys[key_index]] = subject[key_index]
+    return jsonify(data=data, code='200')
+>>>>>>> parent of 408e736 (小组功能实现、愿望单功能实现)
 
 
 # 获取所有筛选条件
@@ -105,9 +135,14 @@ def get_distinct_items():
 @bp.route('/<int:subject_id>', methods=['GET'])
 def get_subject_by_id(subject_id):
     try:
-        subject = query_subject_by_id(subject_id)
+        subject = db.session.query(Subject).filter(Subject.subject_id == subject_id).first()
         data = row2dict(subject)
-        instructor_name = query_instructor_name_by_subject_id(subject_id)
+        print(data)
+        instructor_name = db.session.query(Instructor.instructor_name). \
+            join(ReleaseSubject, ReleaseSubject.instructor_id == Instructor.instructor_id). \
+            join(Subject, ReleaseSubject.subject_id == Subject.subject_id). \
+            filter(Subject.subject_id == subject_id).first()[0]
+
         data['instructor_name'] = instructor_name
         print(data)
         return jsonify(code=200, data=data)
@@ -116,9 +151,9 @@ def get_subject_by_id(subject_id):
         return jsonify(code=400, msg='Type Error')
 
 
-# 获取所有课题数目
 @bp.route('/count', methods=['GET'])
 def get_subject_count():
+<<<<<<< HEAD
     try:
         filter_list = get_filter_list_by_args(request)
         count = db.session.query(func.count(Subject.subject_id)). \
@@ -147,3 +182,7 @@ def search_subject():
 
 
 
+=======
+    count = db.session.query(func.count(Subject.subject_id)).first()[0]
+    return jsonify(count)
+>>>>>>> parent of 408e736 (小组功能实现、愿望单功能实现)
