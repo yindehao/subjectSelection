@@ -118,32 +118,58 @@ class Student(Base):
     team = relationship('Team')
 
 
-t_wish_list = Table(
-    'wish_list', metadata,
-    Column('subject_id', ForeignKey('subject.subject_id', ondelete='RESTRICT', onupdate='RESTRICT'), index=True),
-    Column('team_id', ForeignKey('team.team_id', ondelete='RESTRICT', onupdate='RESTRICT'), index=True),
-    Column('join_time', DateTime),
-    comment='愿望单'
-)
+# t_wish_list = Table(
+#     'wish_list', metadata,
+#     Column('subject_id', ForeignKey('subject.subject_id', ondelete='RESTRICT', onupdate='RESTRICT'), index=True),
+#     Column('team_id', ForeignKey('team.team_id', ondelete='RESTRICT', onupdate='RESTRICT'), index=True),
+#     Column('join_time', DateTime),
+#     comment='愿望单'
+# )
+
+
+# 10.25 新建愿望单、申请表
+# 愿望单
+class WishList(Base):
+    __tablename__ = 'wish_list'
+    __table_args__ = {'comment': '愿望单'}
+    subject_id = Column(ForeignKey('subject.subject_id', ondelete='RESTRICT', onupdate='RESTRICT'), index=True,
+                        primary_key=True)
+    team_id = Column(ForeignKey('team.team_id', ondelete='RESTRICT', onupdate='RESTRICT'), index=True, primary_key=True)
+    join_time = Column(DateTime)
+
+    subject = relationship('Subject')
+    team = relationship('Team')
+
+
 # 申请选课表
-t_apply_to_select = Table(
-    'apply_to_select', metadata,
-    Column('team_id', ForeignKey('team.team_id', ondelete='RESTRICT', onupdate='RESTRICT'), index=True),
-    Column('subject_id', ForeignKey('subject.subject_id', ondelete='RESTRICT', onupdate='RESTRICT'), index=True),
-    Column('status', String(16)),
-    Column('version', Integer),
-    Column('created_time', DateTime),
-    Column('last_modified_time', DateTime),
-    comment='申请选题'
-)
+class Apply2Select(Base):
+    __tablename__ = 'apply_to_select'
+    __table_args__ = {'comment': '申请选题'}
+
+    team_id = Column(ForeignKey('team.team_id', ondelete='RESTRICT', onupdate='RESTRICT'), index=True,
+                     primary_key=True)
+    subject_id = Column(ForeignKey('subject.subject_id', ondelete='RESTRICT', onupdate='RESTRICT'), index=True,
+                        primary_key=True)
+    status = Column(String(16))
+    version = Column(Integer)
+    created_time = Column(DateTime)
+    last_modified_time = Column(DateTime)
+    subject = relationship('Subject')
+    team = relationship('Team')
+
+
 # 申请加入小组表
-t_apply_to_join = Table(
-    'apply_to_join', metadata,
-    Column('team_id', ForeignKey('team.team_id', ondelete='RESTRICT', onupdate='RESTRICT'), index=True),
-    Column('partipant_id', ForeignKey('student.student_id', ondelete='RESTRICT', onupdate='RESTRICT'), index=True),
-    Column('status', String(16)),
-    Column('version', Integer),
-    Column('created_time', DateTime),
-    Column('last_modified_time', DateTime),
-    comment='申请加入小组'
-)
+class Apply2Join(Base):
+    __tablename__ = 'apply_to_join'
+    __table_args__ = {'comment': '申请加入小组'}
+    team_id = Column(ForeignKey('team.team_id', ondelete='RESTRICT', onupdate='RESTRICT'), index=True,
+                     primary_key=True)
+    # partipant_id
+    participant_id = Column(ForeignKey('student.student_id', ondelete='RESTRICT', onupdate='RESTRICT'), index=True,
+                            primary_key=True)
+    status = Column(String(16))
+    version = Column(Integer)
+    created_time = Column(DateTime)
+    last_modified_time = Column(DateTime)
+    student = relationship('Student')
+    team = relationship('Team')

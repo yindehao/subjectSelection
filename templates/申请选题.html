@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>申请选题请求：小组{team.team_name} 想要申请做您的课题({{subject.subject_name}})</title>
+</head>
+<body>
+    <h2>{{instructor.instructor_name}}，您好</h2>
+    <p>
+        {{team.team_name}}小组 想要申请做您的课题 ({{subject.subject_name}})， 您可以选择同意或者驳回该小组的请求
+    </p>
+    <h3>
+        该小组的成员有：
+    </h3>
+    <table>
+        <tr>
+            <th>姓名</th>
+            <th>学号</th>
+            <th>手机号码</th>
+            <th>邮箱地址</th>
+            <th>班级</th>
+            <th>介绍</th>
+            <th>简历</th>
+        </tr>
+        {% for teammate in teammates %}
+        <tr>
+            <th>{{ teammate.student_name }}</th>
+            <th>{{ teammate.student_id }}</th>
+            <th>{{ teammate.phone_number }}</th>
+            <th>{{ teammate.email }}</th>
+            <th>{{ teammate.student_class }}</th>
+            <th>{{ teammate.description }}</th>
+            <th><a href="{{ teammate.resume }}">简历文件</a></th>
+        </tr>
+        {% endfor %}
+    </table>
+    <h3>
+        您的课题"{{subject.subject_name}}"相关信息:
+    </h3>
+    <p>
+        描述：{{ subject.description }}
+    </p>
+    <p>
+        开发语言:{{ subject.language }}
+    </p>
+    <p>
+        人数限制:{{ subject.min_person}}~{{ subject.max_person}}人
+    </p>
+    <p>
+        一共有： {{ subject.max_group }}组
+    </p>
+    <p>
+        更多信息请在工程实践选题系统上查看
+        <a href={{ system_url }}>工程实践选题系统</a>
+    </p>
+    <span>
+        <form id="accept_form" method="post" action={{ accept_join }}>
+          <input type="hidden" name="name" value="value" />
+          <button onclick="document.getElementById('accept_form').submit();">同意选题</button>
+        </form>
+    </span>
+    <span>
+        <form id="accept_form" method="post" action={{ refuse_join }} >
+          <input type="hidden" name="name" value="value" />
+          <button onclick="document.getElementById('accept_form').submit();">驳回选题</button>
+        </form>
+    </span>
+</body>
+</html>
