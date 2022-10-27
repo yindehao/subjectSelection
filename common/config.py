@@ -20,20 +20,7 @@ SECRET_KEY = "ustc20221015"
 JSON_AS_ASCII = False
 
 # 邮箱配置
-# 个人163邮箱
-MAIL_SERVER = "smtp.163.com"
-MAIL_PORT = 465
-MAIL_USE_TLS = False
-# 使用加密端口传输
-MAIL_USE_SSL = True
-MAIL_DEBUG = True
-# 发信人的账号、密码、发送账号配置
-# 需要在163邮箱中，生成客户端授权码
-# smtplib.SMTPAuthenticationError: (535, b'Error: authentication failed')
-MAIL_USERNAME = "yindehao2021@163.com"
-MAIL_PASSWORD = "CDDZHXFNQLZZLZDZ"
-MAIL_DEFAULT_SENDER = "yindehao2021@163.com"
-MAIL_DEFAULT_RECIPIENT = "yindehao@ustc.edu"
-
+# todo 配置邮箱信息
 SSS_DEV = True
+
 

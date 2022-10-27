@@ -71,7 +71,7 @@ def get_subjects_by_args():
         for subject in subjects:
             data[subject.subject_id] = dict()
             for key_index in range(len(data_keys) - 1):
-                data[subject.subject_id][data_keys[key_index]] = subject[key_index]
+                data[subject.subject_id][data_keys[key_index]] = str(subject[key_index])
         return jsonify(data=data, code=200)
     except TypeError as err:
         return jsonify(code=400, msg='找不到给定参数的课题')

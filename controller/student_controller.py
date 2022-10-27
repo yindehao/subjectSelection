@@ -147,6 +147,17 @@ def query_wish_list_by_team_id(team_id):
     return wish_list
 
 
+def query_wish_by_id(team_id, subject_id):
+    sql = 'select s.subject_id,s.subject_name, s.language,' \
+          'i.instructor_name, s.origin, s.min_person,s.max_person, s.max_group, wish_list.join_time ' \
+          'from wish_list join subject s on s.subject_id = wish_list.subject_id ' \
+          'join release_subject rs on s.subject_id = rs.subject_id ' \
+          'join instructor i on i.instructor_id = rs.instructor_id ' \
+          'where wish_list.subject_id = :subject_id and wish_list.team_id = :team_id'
+    wish = db.session.execute(sql, {'subject_id': subject_id, 'team_id': team_id}).first()
+    return wish
+
+
 # 添加愿望单
 def add_2_wish_list(team_id, subject_id):
     now = get_local_time()
@@ -163,17 +174,6 @@ def delete_wish_list(team_id, subject_id):
     db.session.commit()
 
 
-def query_wish_by_id(team_id, subject_id):
-    sql = 'select s.subject_id,s.subject_name, s.language,' \
-          'i.instructor_name, s.origin, s.min_person,s.max_person, s.max_group, wish_list.join_time ' \
-          'from wish_list join subject s on s.subject_id = wish_list.subject_id ' \
-          'join release_subject rs on s.subject_id = rs.subject_id ' \
-          'join instructor i on i.instructor_id = rs.instructor_id ' \
-          'where wish_list.subject_id = :subject_id and wish_list.team_id = :team_id'
-    wish = db.session.execute(sql, {'subject_id': subject_id, 'team_id': team_id}).first()
-    return wish
-
-
 # 删除小队的所有愿望
 def delete_wish_list_all(team_id):
     sql = 'delete from wish_list ' \
@@ -181,6 +181,16 @@ def delete_wish_list_all(team_id):
     db.session.execute(sql, {'team_id': team_id})
     db.session.commit()
     return True
+
+
+# 课题删除后，删除相应的愿望单
+def delete_wish_list_by_subject_id(subject_id):
+    sql = 'delete from wish_list ' \
+          'where subject_id = :subject_id;'
+    db.session.execute(sql, {'subject_id': subject_id})
+    db.session.commit()
+    return True
+
 
 
 '''
@@ -191,7 +201,7 @@ def delete_wish_list_all(team_id):
 
 # 根据课程ID获取申请表
 # todo 解决 代码冗余
-def query_apply_select(subject_id):
+def query_apply_select_by_subject(subject_id):
     applies = db.session.query(Apply2Select).filter(Apply2Select.subject_id == subject_id).all()
     return applies
 
@@ -211,6 +221,13 @@ def query_apply_select(subject_id, team_id):
 def query_apply_select_by_team(team_id):
     applies = db.session.query(Apply2Select).filter(Apply2Select.team_id == team_id).all()
     return applies
+
+
+# 查看通过的申请
+def query_apply_accept_select_by_team(team_id):
+    ac_apply = db.session.query(Apply2Select).filter(Apply2Select.team_id == team_id,
+                                                    Apply2Select.status == "申请通过").first()
+    return ac_apply
 
 
 # 提交选课申请
@@ -237,6 +254,16 @@ def update_apply_select(subject_id, team_id, accept):
     apply.last_modified_time = get_local_time()
     db.session.commit()
     return apply
+
+
+def re_apply_select(subject_id, team_id):
+    apply = query_apply_select(subject_id=subject_id, team_id=team_id)
+    apply.status = "申请未通过，再次申请中"
+    apply.version += 1
+    apply.last_modified_time = get_local_time()
+    db.session.commit()
+    return apply
+
 
 
 # 同意或者拒绝后，点击邮件删除请求
@@ -294,5 +321,7 @@ def update_apply_join(team_id, student_id, accept):
 # 同意或者拒绝后删除请求
 def delete_app_join(team_id, student_id):
     apply = query_apply_join(team_id, student_id)
+    print(apply)
     db.session.delete(apply)
+    db.session.commit()
     return True

@@ -349,7 +349,9 @@ def quit_team_by_id(student_id):
     try:
         student = controller.student_controller.query_student_by_id(student_id)
         if student.team_id:
+            controller.student_controller.delete_app_join(team_id=student.team_id, student_id=student.student_id)
             controller.student_controller.withdraw_team_by_student_id(student_id)
+
             return jsonify(code=200, data=row2dict(student), msg='成功退出小组')
         else:
             return jsonify(code=400, data=dict(), msg='请先加入小组')
@@ -361,6 +363,21 @@ def quit_team_by_id(student_id):
 # 查看加入小组的结果
 @bp.route('/team/<student_id>/join_team', methods=['GET'])
 def join_result(student_id):
+    try:
+        student = controller.student_controller.query_student_by_id(student_id)
+        applies = controller.student_controller.query_apply_join_by_student(student_id=student.student_id)
+        data = list()
+        for apply in applies:
+            data.append(row2dict(apply))
+        return jsonify(code=200, data=data, msg='成功获得加入小组申请')
+    except Exception as err:
+        logging.warning(err)
+        return jsonify(code=400, data=dict(), msg='无法获取选中课题信息')
+
+
+# 查看加入小组的结果
+@bp.route('/team/<student_id>/join_applies', methods=['GET'])
+def join_applies(student_id):
     try:
         student = controller.student_controller.query_student_by_id(student_id)
         if student.team_id:
@@ -453,7 +470,7 @@ def refuse_join_mail():
         return '地址不正确'
 
 
-# 查看选题结果
+# 学生查看选题结果
 @bp.route('/team/<student_id>/selected_subject', methods=['GET'])
 def selected_subject(student_id):
     try:
@@ -471,6 +488,20 @@ def selected_subject(student_id):
         return jsonify(code=400, data=dict(), msg='无法获取选中课题信息')
 
 
+# 根据小组id获取小组信息
+@bp.route('/teams/<team_id>', methods=['GET'])
+def team_info(team_id):
+    try:
+        team = controller.student_controller.query_team_by_id(team_id=team_id)
+        team_data = row2dict(team)
+        team_leader = controller.student_controller.query_student_by_id(team.leader_id)
+        team_data['team_leader'] = team_leader.student_name
+        return jsonify(code=200, data=team_data, msg='成功找到小组')
+    except Exception as err:
+        logging.warning(err)
+        return jsonify(code=400, data=dict(), msg='无法获取小组信息')
+
+
 # 申请选题
 @bp.route('/team/<student_id>/select', methods=['POST'])
 def select_subject(student_id):
@@ -479,15 +510,19 @@ def select_subject(student_id):
         subject_id = request.json['subject_id']
         if student.team_id:
             team = controller.student_controller.query_team_by_id(team_id=student.team_id)
+            # 查看是否有已经通过的课题
+            ac_apply = controller.student_controller.query_apply_accept_select_by_team(team.team_id)
+            if ac_apply:
+                return jsonify(code=400, data=row2dict(ac_apply), msg='您已经有通过的选题了')
             if team.leader_id == student.student_id:
-
                 subject = controller.subject_controller.query_subject_by_id(subject_id=subject_id)
                 # 已经选中课题的组数
                 count = controller.student_controller.get_accept_apply_select_count(subject_id=subject_id)
-
                 if subject.max_group > count:
                     if not controller.student_controller.query_apply_select(subject_id, team_id=student.team_id):
                         controller.student_controller.add_apply_select(subject_id=subject_id, team_id=student.team_id)
+                    else:
+                        controller.student_controller.re_apply_select(subject_id=subject_id, team_id=student.team_id)
                     instructor = controller.subject_controller.query_instructor_by_subject_id(subject_id)
                     teammates = controller.student_controller.query_student_by_team_id(team_id=team.team_id)
                     msg = write_select_email(subject, instructor, team, teammates)
@@ -542,7 +577,7 @@ def accept_select_mail():
         # 如果access不正确
         if not check_password_hash(key1, instructor.password):
             return '错误的URL格式'
-        # 如果人数不够，加入后不到4人
+        # 如果剩余组数大于2
         if count < subject.max_group - 1:
             controller.student_controller.update_apply_select(subject_id, team_id, True)
             team.subject_id = subject_id
