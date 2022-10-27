@@ -20,5 +20,5 @@ css文件、图片等资源存放在**static**目录下
 5. 在项目文件下的**com->config**内，修改为你的数据库用户密码
 6. 运行app.py，点击链接测试数据库是否正常运行
 ![img.png](ReadMeAssests/test_database.png)
-
+7. 更改common/config.py中的数据库和邮箱配置信息
 
